@@ -10,9 +10,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cch.common.BaseRollBackBean;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:applicationContext.xml" })
-@Transactional(transactionManager = "transactionManager", readOnly = true)
+@Transactional(transactionManager = "transactionManager", readOnly = true, rollbackFor = BaseRollBackBean.class)
 public class UnitTest {
 	@BeforeClass
 	public static void befClass() {
