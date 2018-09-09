@@ -15,7 +15,7 @@ import com.ibm.mq.jms.MQQueueConnectionFactory;
 import com.ibm.mq.jms.MQTopicConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
 
-@Configuration
+//@Configuration
 public class JmsConfig2 {
 	
 	@Value("${servers.mq.host}")
