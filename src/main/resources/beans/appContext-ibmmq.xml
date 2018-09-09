@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<description>MQ</description>
+	<context:property-placeholder location="classpath*:configs/app.properties" />
+	<!-- mq队列连接工厂 -->
+	<bean id="jmsConnectionFactory" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+		<property name="hostName" value="${jms.mq.hostname}"/>
+		<property name="port" value="${jms.mq.port}"/>
+		<property name="CCSID" value="${jms.mq.ccsid}" />
+		<property name="queueManager" value="${jms.mq.queuemanagername}"/>
+		<property name="channel" value="${jms.mq.channel}"/>
+		<property name="transportType" value="${jms.mq.transportType}"/>
+	</bean>  
+	
+	<!-- ConnectionFactoryAdapter -->
+	<bean id="userCredentialsConnectionFactoryAdapter" class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+		<property name="username" value="cch_ibm"/>
+		<property name="password" value="123456"/>
+		<property name="targetConnectionFactory" ref="jmsConnectionFactory"/>
+    </bean>
+	
+	<!-- spring缓存管理mq队列连接工厂 -->
+	<bean id="jmsQueueConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="userCredentialsConnectionFactoryAdapter"/>
+        <property name="sessionCacheSize" value="5"/>
+    </bean>
+	
+	 <!-- MQ sender queue setup -->  
+    <bean id="senderQueue" class="com.ibm.mq.jms.MQQueue"> 
+        <property name="baseQueueManagerName" value="${jms.mq.queuemanagername}"/> 
+        <property name="baseQueueName" value="${jms.mbfe.queuename}"/> 
+    </bean>
+    <!-- MQ receiver queue setup -->  
+    <bean id="receiverQueue" class="com.ibm.mq.jms.MQQueue"> 
+        <property name="baseQueueManagerName" value="${jms.mq.queuemanagername}"/> 
+        <property name="baseQueueName" value="${jms.mbfe.queuename}"/> 
+    </bean>
+    
+    <!-- the JMSTemplate setup for Sender Queue--> 
+    <bean id="SenderJMSTemplate" class="org.springframework.jms.core.JmsTemplate">  
+        <property name="connectionFactory" ref="jmsQueueConnectionFactory"/>
+        <property name="defaultDestination" ref="senderQueue"/>
+        <property name="pubSubDomain" value="false"/>
+    </bean>
+    
+    <!-- the JMSTemplate setup for Receiver Queue -->  
+    <bean id="ReceiverJMSTemplate" class="org.springframework.jms.core.JmsTemplate">  
+        <property name="connectionFactory" ref="jmsQueueConnectionFactory"/>
+        <property name="defaultDestination" ref="receiverQueue"/> 
+        <property name="pubSubDomain" value="false"/> 
+    </bean> 
+   	 <!-- 队列发送程序 -->
+    <bean id="jmsSender" class="com.cch.jms.JMSSender">  
+        <property name="jmsTemplate" ref="SenderJMSTemplate" />  
+        <property name="replyTo" ref="senderQueue" />
+    </bean>
+    <!-- 队列接收程序 -->
+    <bean id="jmsReceiver" class="com.cch.jms.JMSReceiver">  
+        <property name="jmsTemplate" ref="ReceiverJMSTemplate"/>
+        <property name="receiveQueue" ref="receiverQueue"/>
+    </bean> 
+    
+    <!-- spring 监听队列，一旦队列中有消息，马上触发监听 -->
+    <bean id="jmsContainer"
+        class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
+        <property name="connectionFactory" ref="jmsQueueConnectionFactory" />  
+        <property name="destination" ref="receiverQueue" />  
+        <property name="messageListener" ref="jmsReceiver" />  
+        <property name="concurrentConsumers" value="1" /> 
+    </bean>
+	
+</beans>

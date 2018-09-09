@@ -106,4 +106,5 @@
     
     <!-- 引用各模块的spring配置文件 -->  
  	<import resource="classpath*:beans/spring-otherContext.xml"/> 
+ 	<import resource="classpath*:beans/appContext-ibmmq.xml"/> 
 </beans>
