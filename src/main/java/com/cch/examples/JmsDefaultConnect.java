@@ -1,4 +1,4 @@
-package com.cch.controllers;
+package com.cch.examples;
 
 import java.util.UUID;
 
