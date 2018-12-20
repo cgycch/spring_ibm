@@ -4,27 +4,20 @@
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
-  
   <context-param>
     <param-name>log4jConfigLocation</param-name>
     <param-value>classpath:configs/log4j.properties</param-value>
   </context-param>
-  
-   <context-param>
+  <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>classpath:applicationContext.xml</param-value>
   </context-param>
-  
   <listener>
     <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
   </listener>
-<!--   <listener>  
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>  
- </listener>  -->
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
-  
   <filter>
     <filter-name>encodingFilter</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -38,7 +31,6 @@
     <filter-name>encodingFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-  
   <servlet>
     <servlet-name>springmvc</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -53,6 +45,12 @@
     <servlet-name>springmvc</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>InitServlet</servlet-name>
+    <servlet-class>com.cch.servlet.InitServlet</servlet-class>
+    <load-on-startup>9</load-on-startup>
+  </servlet>
   
   <session-config>
     <session-timeout>30</session-timeout>
